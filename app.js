@@ -6,6 +6,8 @@
 var mongoose = require('mongoose');
 var express = require('express');
 var bodyParser = require('body-parser');
+var jwt = require('jsonwebtoken');
+var config = require('./config');
 var app = express();
 
 //Load models
@@ -15,14 +17,15 @@ var Rating = require('./models/rating')
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.set('secret', config.secret);
 
 //Define port
-var port = 8080;
+var port = config.port;
 
 var router = express.Router();
 
 //Connect to notflix database
-mongoose.connect('mongodb://localhost/notflix');
+mongoose.connect(config.database);
 
 //Test the connection to the database
 var db = mongoose.connection;
@@ -35,6 +38,44 @@ db.once('open', function() {
 router.get('/', function(req, res) {
     res.json({ message: 'hooray! welcome to our api!' });
 });
+
+//Code for /authenticate
+//-------------------------------------------------------------------------------------------------------------
+router.route('/authenticate')
+    .post(function(req, res) {
+
+        // find the user
+        User.findOne({
+            username: req.body.username
+        }, function(err, user) {
+
+            if (err) throw err;
+
+            if (!user) {
+                res.json({ success: false, message: 'Authentication failed. User not found.' });
+            } else if (user) {
+
+                // check if password matches
+                if (user.password != req.body.password) {
+                    res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+                } else {
+
+                    // if user is found and password is right
+                    // create a token
+                    var token = jwt.sign(user, app.get('secret'), {
+                        expiresIn: 86400 // expires in 24 hours
+                    });
+
+                    // return the information including token as JSON
+                    res.json({
+                        success: true,
+                        message: 'Enjoy your token!',
+                        token: token
+                    });
+                }
+            }
+        });
+    });
 
 //Code for /movies
 //-------------------------------------------------------------------------------------------------------------
@@ -81,7 +122,39 @@ router.route('/users')
 
             res.json({ message: 'User created!' });
         });
-    })
+    });
+
+//Router middleware: you have to sign in to access everything beneath here
+router.use(function(req, res, next) {
+
+    // check header or url parameters or post parameters for token
+    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+    // decode token
+    if (token) {
+
+        // verifies secret and checks exp
+        jwt.verify(token, app.get('secret'), function(err, decoded) {
+            if (err) {
+                return res.json({ success: false, message: 'Failed to authenticate token.' });
+            } else {
+                // if everything is good, save to request for use in other routes
+                req.decoded = decoded;
+                next();
+            }
+        });
+    } else {
+
+        // if there is no token
+        // return an error
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        });
+    }
+});
+
+router.route('/users')
 
 //Get all users http://localhost:8080/api/users
     .get(function(req, res) {
@@ -103,7 +176,7 @@ router.route('/users/:user_id')
         });
     });
 
-//Code for /ratings NOG NIET AF!
+//Code for /ratings
 //-------------------------------------------------------------------------------------------------------------
 router.route('/ratings')
 
