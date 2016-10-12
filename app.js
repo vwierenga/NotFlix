@@ -110,18 +110,13 @@ router.route('/ratings')
 //Create a user with POST http://localhost:8080/api/ratings)
     .post(function(req, res) {
 
-        imdb_number: { type: Number, required: true },
-        rating: { type: Number, required: true },
-        by_user: { type: String, required: true }
-
         var rating = new Rating();
-        user.last_name = req.body.last_name;
         rating.imdb_number = req.body.imdb_number;
         rating.rating = req.body.rating;
-        rating.by_user = req
+        rating.by_user = req.body.by_user;
 
         //Save the user and check for errors
-        user.save(function(err) {
+        rating.save(function(err) {
             if (err)
                 res.send(err);
 
@@ -129,23 +124,58 @@ router.route('/ratings')
         });
     })
 
-    //Get all users http://localhost:8080/api/users
+    //Get all ratings http://localhost:8080/api/ratings
     .get(function(req, res) {
-        User.find(function(err, users) {
+        Rating.find(function(err, ratings) {
             if (err)
                 res.send(err);
-            res.json(users);
+            res.json(ratings);
         });
     });
 
-router.route('/movies/:user_id')
+router.route('/movies/:rating_id')
 
-//Get the user with a specific id http://localhost:8080/api/movies/:user_id
+//Get the user with a specific id http://localhost:8080/api/ratings/:rating_id
     .get(function(req, res) {
-        User.findById(req.params.user_id, function(err, user) {
+        Rating.findById(req.params.rating_id, function(err, rating) {
             if (err)
                 res.send(err);
-            res.json(user);
+            res.json(rating);
+        });
+    })
+
+    //Update the rating http://localhost:8080/api/ratings/:rating_id)
+    .put(function(req, res) {
+
+        Rating.findById(req.params.rating_id, function(err, user) {
+
+            if (err)
+                res.send(err);
+
+            rating.imdb_number = req.body.imdb_number;
+            rating.rating = req.body.rating;
+            rating.by_user = req.body.by_user;
+
+            // save the rating
+            user.save(function(err) {
+                if (err)
+                    res.send(err);
+
+                res.json({ message: 'Rating updated!' });
+            });
+
+        });
+    })
+
+    //Delete the rating http://localhost:8080/api/ratings/:rating_id)
+    .delete(function(req, res) {
+        Rating.remove({
+            _id: req.params.rating_id
+        }, function(err, rating) {
+            if (err)
+                res.send(err);
+
+            res.json({ message: 'Rating deleted!' });
         });
     });
 
