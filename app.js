@@ -111,7 +111,7 @@ router.route('/movies/:imdb_number')
 
 router.route('/movieswithrating') //Not finished yet
 
-//Get the movie with a specific imdb id http://localhost:8080/api/movies/:imdb_number
+//Get the movie with a rating http://localhost:8080/api/movieswithrating
     .get(function(req, res) {
         Movie.find(function(err, movies) {
             if (err) {
@@ -127,10 +127,10 @@ router.route('/movieswithrating') //Not finished yet
                     for (var j = 0, len = ratings.length; j < len; j++) {
                         totalscore = totalscore + ratings[j];
                     }
-
-                    res.status(200).json(movie + (totalscore/totalscore.lenght));
+                    movie.set('Score',(totalscore/totalscore.lenght))
                 });
             }
+            res.status(200).json(movies);
         });
     });
 
