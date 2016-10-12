@@ -1,5 +1,5 @@
 /**
- * Created by Vincent on 10/12/2016.
+ * Created by Vincent on 10/7/2016.
  */
 
 //Load packages
@@ -35,9 +35,10 @@ db.once('open', function() {
 });
 
 //Test the router
+/*
 router.get('/', function(req, res) {
     res.status(200).json({ message: 'hooray! welcome to our api!' });
-});
+}); */
 
 //Code for /authenticate
 //-------------------------------------------------------------------------------------------------------------
@@ -109,7 +110,7 @@ router.route('/movies/:imdb_number')
         });
     });
 
-router.route('/movieswithrating') //Not finished yet
+router.route('/movieswithrating')
 
 //Get the movie with a rating http://localhost:8080/api/movieswithrating
     .get(function(req, res) {
@@ -127,7 +128,7 @@ router.route('/movieswithrating') //Not finished yet
                     for (var j = 0, len = ratings.length; j < len; j++) {
                         totalscore = totalscore + ratings[j];
                     }
-                    movie.set('Score',(totalscore/totalscore.lenght))
+                    movie.set('rating', (totalscore/totalscore.lenght))
                 });
             }
             res.status(200).json(movies);
