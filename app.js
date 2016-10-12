@@ -49,9 +49,9 @@ router.route('/movies')
         });
     });
 
-router.route('/movies/:movie_id')
+router.route('/movies/:imdb_number')
 
-    //Get the movie with a specific imdb id http://localhost:8080/api/movies/:movie_id
+    //Get the movie with a specific imdb id http://localhost:8080/api/movies/:imdb_number
     .get(function(req, res) {
         Movie.findById(req.params.imdb_number, function(err, movie) {
             if (err)
@@ -64,7 +64,7 @@ router.route('/movies/:movie_id')
 //-------------------------------------------------------------------------------------------------------------
 router.route('/users')
 
-// create a user with POST http://localhost:8080/api/bears)
+//Create a user with POST http://localhost:8080/api/users)
     .post(function(req, res) {
 
         var user = new User();
@@ -83,7 +83,7 @@ router.route('/users')
         });
     })
 
-//Get all movies http://localhost:8080/api/movies
+//Get all users http://localhost:8080/api/users
     .get(function(req, res) {
         User.find(function(err, users) {
             if (err)
@@ -92,14 +92,60 @@ router.route('/users')
         });
     });
 
-router.route('/movies/:movie_id')
+router.route('/movies/:user_id')
 
-//Get the user with a specific id http://localhost:8080/api/movies/:movie_id
+//Get the user with a specific id http://localhost:8080/api/movies/:user_id
     .get(function(req, res) {
-        Movie.findById(req.params.imdb_number, function(err, movie) {
+        User.findById(req.params.user_id, function(err, user) {
             if (err)
                 res.send(err);
-            res.json(movie);
+            res.json(user);
+        });
+    });
+
+//Code for /ratings NOG NIET AF!
+//-------------------------------------------------------------------------------------------------------------
+router.route('/ratings')
+
+//Create a user with POST http://localhost:8080/api/ratings)
+    .post(function(req, res) {
+
+        imdb_number: { type: Number, required: true },
+        rating: { type: Number, required: true },
+        by_user: { type: String, required: true }
+
+        var rating = new Rating();
+        user.last_name = req.body.last_name;
+        rating.imdb_number = req.body.imdb_number;
+        rating.rating = req.body.rating;
+        rating.by_user = req
+
+        //Save the user and check for errors
+        user.save(function(err) {
+            if (err)
+                res.send(err);
+
+            res.json({ message: 'Rating created!' });
+        });
+    })
+
+    //Get all users http://localhost:8080/api/users
+    .get(function(req, res) {
+        User.find(function(err, users) {
+            if (err)
+                res.send(err);
+            res.json(users);
+        });
+    });
+
+router.route('/movies/:user_id')
+
+//Get the user with a specific id http://localhost:8080/api/movies/:user_id
+    .get(function(req, res) {
+        User.findById(req.params.user_id, function(err, user) {
+            if (err)
+                res.send(err);
+            res.json(user);
         });
     });
 
