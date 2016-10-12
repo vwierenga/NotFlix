@@ -92,7 +92,7 @@ router.route('/users')
         });
     });
 
-router.route('/movies/:user_id')
+router.route('/users/:user_id')
 
 //Get the user with a specific id http://localhost:8080/api/movies/:user_id
     .get(function(req, res) {
@@ -133,7 +133,7 @@ router.route('/ratings')
         });
     });
 
-router.route('/movies/:rating_id')
+router.route('/ratings/:rating_id')
 
 //Get the user with a specific id http://localhost:8080/api/ratings/:rating_id
     .get(function(req, res) {
