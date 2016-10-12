@@ -227,13 +227,30 @@ router.route('/ratings')
             rating.rating = req.body.rating;
             rating.by_user = req.body.by_user;
 
-            //Save the user and check for errors
-            rating.save(function(err) {
+            var alreadyexistingrating = true;
+            var current_user = req.decoded.username;
+
+            Rating.find({'by_user':current_user, 'imdb_number':rating.imdb_number},function(err, ratings) {
                 if (err) {
                     res.status(500).send(err);
                 }
-                res.status(201).json({ message: 'Rating created!' });
+                console.log(ratings);
+                if(ratings == null || ratings.lenght == 0) {
+                    alreadyexistingrating = false;
+                }
             });
+
+            if(!alreadyexistingrating) {
+                //Save the user and check for errors
+                rating.save(function(err) {
+                    if (err) {
+                        res.status(500).send(err);
+                    }
+                    res.status(201).json({ message: 'Rating created!' });
+                });
+            } else {
+                res.status(405).json({ message: 'You cannot rate a movie more than once' });
+            }
         } else {
             res.status(405).json({ message: 'The score should be between 1 and 10 inclusive' });
         }
@@ -260,7 +277,7 @@ router.route('/ratings/:rating_id')
         var current_user = req.decoded.username;
 
         Rating.findById(req.params.rating_id, function(err, rating) {
-            if(rating.by_user == current_user) {
+            if(rating != null && rating.by_user == current_user) {
                 if (err) {
                     res.status(500).send(err);
                 }
@@ -276,8 +293,8 @@ router.route('/ratings/:rating_id')
 
         var current_user = req.decoded.username;
 
-        Rating.findById(req.params.rating_id, function(err, user) {
-            if(rating.by_user == current_user) {
+        Rating.findById(req.params.rating_id, function(err, rating) {
+            if (rating != null && rating.by_user == current_user) {
                 if (err) {
                     res.status(500).send(err);
                 }
@@ -287,13 +304,15 @@ router.route('/ratings/:rating_id')
                 rating.by_user = req.body.by_user;
 
                 // save the rating
-                user.save(function(err) {
+                rating.save(function (err) {
                     if (err) {
                         res.status(500).send(err);
                     }
 
-                    res.status(200).json({ message: 'Rating updated!' });
+                    res.status(200).json({message: 'Rating updated!'});
                 });
+            } else if (rating == null) {
+                res.status(204).json({ message: 'This rating does not exist :(' });
             } else {
                 res.status(403).json({ message: 'You do not have the neccesary permissions to modify this rating! :(' });
             }
@@ -302,19 +321,25 @@ router.route('/ratings/:rating_id')
 
     //Delete the rating http://localhost:8080/api/ratings/:rating_id)
     .delete(function(req, res) {
-        if(rating.by_user == current_user) {
-            Rating.remove({
-                _id: req.params.rating_id
-            }, function(err, rating) {
-                if (err) {
-                    res.status(500).send(err);
-                }
+        var current_user = req.decoded.username;
 
-                res.status(200).json({ message: 'Rating deleted!' });
-            });
-        } else {
-            res.status(403).json({ message: 'You do not have the neccesary permissions to delete this rating! :(' });
-        }
+        Rating.findById(req.params.rating_id, function(err, rating) {
+            if (rating != null && rating.by_user == current_user) {
+                Rating.remove({
+                    _id: req.params.rating_id
+                }, function(err, rating) {
+                    if (err) {
+                        res.status(500).send(err);
+                    }
+
+                    res.status(200).json({ message: 'Rating deleted!' });
+                });
+            } else if (rating == null) {
+                res.status(204).json({ message: 'This rating does not exist :(' });
+            } else {
+                res.status(403).json({ message: 'You do not have the neccesary permissions to modify this rating! :(' });
+            }
+        });
     });
 
 
