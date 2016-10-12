@@ -36,7 +36,7 @@ db.once('open', function() {
 
 //Test the router
 router.get('/', function(req, res) {
-    res.json({ message: 'hooray! welcome to our api!' });
+    res.status(200).json({ message: 'hooray! welcome to our api!' });
 });
 
 //Code for /authenticate
@@ -52,18 +52,18 @@ router.route('/authenticate')
             if (err) throw err;
 
             if (!user) {
-                res.json({ success: false, message: 'Authentication failed. User not found.' });
+                res.status(401).json({ success: false, message: 'Authentication failed. User not found.' });
             } else if (user) {
 
                 // check if password matches
                 if (user.password != req.body.password) {
-                    res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+                    res.status(401).json({ success: false, message: 'Authentication failed. Wrong password.' });
                 } else {
 
                     // if user is found and password is right
                     // create a token
                     var payload = {
-                        username: user.username,
+                        username: user.username
                     };
 
                     var token = jwt.sign(payload, app.get('secret'), {
@@ -73,7 +73,7 @@ router.route('/authenticate')
                     //console.log(jwt.decode(token))
 
                     // return the information including token as JSON
-                    res.json({
+                    res.status(200).json({
                         success: true,
                         message: 'Enjoy your token!',
                         token: token
@@ -90,9 +90,10 @@ router.route('/movies')
     //Get all movies http://localhost:8080/api/movies
     .get(function(req, res) {
         Movie.find(function(err, movies) {
-            if (err)
-                res.send(err);
-            res.json(movies);
+            if (err) {
+                res.status(500).send(err);
+            }
+            res.status(200).json(movies);
         });
     });
 
@@ -101,9 +102,10 @@ router.route('/movies/:imdb_number')
     //Get the movie with a specific imdb id http://localhost:8080/api/movies/:imdb_number
     .get(function(req, res) {
         Movie.find({'imdb_number':req.params.imdb_number}, function(err, movie) {
-            if (err)
-                res.send(err);
-            res.json(movie);
+            if (err) {
+                res.status(500).send(err);
+            }
+            res.status(200).json(movie);
         });
     });
 
@@ -112,14 +114,23 @@ router.route('/movieswithrating') //Not finished yet
 //Get the movie with a specific imdb id http://localhost:8080/api/movies/:imdb_number
     .get(function(req, res) {
         Movie.find(function(err, movies) {
-            if (err)
-                res.send(err);
-            Rating.find({}, '', function(err, ratings) {
-                if (err)
-                    res.send(err);
-                res.json(ratings);
-            });
-            res.json(movies);
+            if (err) {
+                res.status(500).send(err);
+            }
+            for (var i = 0, len = movies.length; i < len; i++) {
+                var movie = movies[i].imdb_number;
+                Rating.find({'imdb_number':movie.imdb_number}, 'rating', function(err, ratings) {
+                    if (err) {
+                        res.status(500).send(err);
+                    }
+                    var totalscore = 0;
+                    for (var j = 0, len = ratings.length; j < len; j++) {
+                        totalscore = totalscore + ratings[j];
+                    }
+
+                    res.status(200).json(movie + (totalscore/totalscore.lenght));
+                });
+            }
         });
     });
 
@@ -139,10 +150,11 @@ router.route('/users')
 
     //Save the user and check for errors
         user.save(function(err) {
-            if (err)
-                res.send(err);
+            if (err) {
+                res.status(500).send(err);
+            }
 
-            res.json({ message: 'User created!' });
+            res.status(201).json({ message: 'User created!' });
         });
     });
 
@@ -158,7 +170,7 @@ router.use(function(req, res, next) {
         // verifies secret and checks exp
         jwt.verify(token, app.get('secret'), function(err, decoded) {
             if (err) {
-                return res.json({ success: false, message: 'Failed to authenticate token.' });
+                return res.status(500).json({ success: false, message: 'Failed to authenticate token.' });
             } else {
                 // if everything is good, save to request for use in other routes
                 req.decoded = decoded;
@@ -181,9 +193,10 @@ router.route('/users')
 //Get all users http://localhost:8080/api/users
     .get(function(req, res) {
         User.find({}, 'first_name surname_prefix last_name username ', function(err, users) {
-            if (err)
-                res.send(err);
-            res.json(users);
+            if (err) {
+                res.status(500).send(err);
+            }
+            res.status(200).json(users);
         });
     });
 
@@ -192,9 +205,10 @@ router.route('/users/:user_id')
 //Get the user with a specific id http://localhost:8080/api/movies/:user_id
     .get(function(req, res) {
         User.findById(req.params.user_id, 'first_name surname_prefix last_name username ', function(err, user) {
-            if (err)
-                res.send(err);
-            res.json(user);
+            if (err) {
+                res.status(500).send(err);
+            }
+            res.status(200).json(user);
         });
     });
 
@@ -215,13 +229,13 @@ router.route('/ratings')
 
             //Save the user and check for errors
             rating.save(function(err) {
-                if (err)
-                    res.send(err);
-
-                res.json({ message: 'Rating created!' });
+                if (err) {
+                    res.status(500).send(err);
+                }
+                res.status(201).json({ message: 'Rating created!' });
             });
         } else {
-            res.json({ message: 'The score should be between 1 and 10 inclusive' });
+            res.status(405).json({ message: 'The score should be between 1 and 10 inclusive' });
         }
     })
 
@@ -231,9 +245,10 @@ router.route('/ratings')
         var current_user = req.decoded.username;
 
         Rating.find({'by_user':current_user},function(err, ratings) {
-            if (err)
-                res.send(err);
-            res.json(ratings);
+            if (err) {
+                res.status(500).send(err);
+            }
+            res.status(200).json(ratings);
         });
     });
 
@@ -246,11 +261,12 @@ router.route('/ratings/:rating_id')
 
         Rating.findById(req.params.rating_id, function(err, rating) {
             if(rating.by_user == current_user) {
-                if (err)
-                    res.send(err);
-                res.json(rating);
+                if (err) {
+                    res.status(500).send(err);
+                }
+                res.status(200).json(rating);
             } else {
-                res.json({ message: 'You do not have the neccesary permissions to view this rating! :(' });
+                res.status(403).json({ message: 'You do not have the neccesary permissions to view this rating! :(' });
             }
         });
     })
@@ -262,8 +278,9 @@ router.route('/ratings/:rating_id')
 
         Rating.findById(req.params.rating_id, function(err, user) {
             if(rating.by_user == current_user) {
-                if (err)
-                    res.send(err);
+                if (err) {
+                    res.status(500).send(err);
+                }
 
                 rating.imdb_number = req.body.imdb_number;
                 rating.rating = req.body.rating;
@@ -271,13 +288,14 @@ router.route('/ratings/:rating_id')
 
                 // save the rating
                 user.save(function(err) {
-                    if (err)
-                        res.send(err);
+                    if (err) {
+                        res.status(500).send(err);
+                    }
 
-                    res.json({ message: 'Rating updated!' });
+                    res.status(200).json({ message: 'Rating updated!' });
                 });
             } else {
-                res.json({ message: 'You do not have the neccesary permissions to modify this rating! :(' });
+                res.status(403).json({ message: 'You do not have the neccesary permissions to modify this rating! :(' });
             }
         });
     })
@@ -288,13 +306,14 @@ router.route('/ratings/:rating_id')
             Rating.remove({
                 _id: req.params.rating_id
             }, function(err, rating) {
-                if (err)
-                    res.send(err);
+                if (err) {
+                    res.status(500).send(err);
+                }
 
-                res.json({ message: 'Rating deleted!' });
+                res.status(200).json({ message: 'Rating deleted!' });
             });
         } else {
-            res.json({ message: 'You do not have the neccesary permissions to delete this rating! :(' });
+            res.status(403).json({ message: 'You do not have the neccesary permissions to delete this rating! :(' });
         }
     });
 
