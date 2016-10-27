@@ -16,5 +16,12 @@ function login(){
 }
 
 function register(){
-    console.log('register functie')
+    console.log('register functie');
+    //http://localhost:8080/api/users;
+    //body:
+        //username
+        //password
+        //last_name
+        //first_name
+        //surname_prefix
 }
