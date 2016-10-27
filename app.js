@@ -53,12 +53,12 @@ router.route('/authenticate')
             if (err) throw err;
 
             if (!user) {
-                res.status(401).json({ success: false, message: 'Authentication failed. User not found.' });
+                res.status(401).json({ error: true, success: false, message: 'Authentication failed. User not found.' });
             } else if (user) {
 
                 // check if password matches
                 if (user.password != req.body.password) {
-                    res.status(401).json({ success: false, message: 'Authentication failed. Wrong password.' });
+                    res.status(401).json({ error: true, success: false, message: 'Authentication failed. Wrong password.' });
                 } else {
 
                     // if user is found and password is right
@@ -75,6 +75,7 @@ router.route('/authenticate')
 
                     // return the information including token as JSON
                     res.status(200).json({
+                        error: false,
                         success: true,
                         message: 'Enjoy your token!',
                         token: token
@@ -149,14 +150,35 @@ router.route('/users')
         user.username = req.body.username;
         user.password = req.body.password;
 
-    //Save the user and check for errors
-        user.save(function(err) {
-            if (err) {
-                res.status(500).send(err);
-            }
+        if (user.surname_prefix === null) {
+            user.surname_prefix = '';
+        }
 
-            res.status(201).json({ message: 'User created!' });
-        });
+        if (user.last_name != null && user.first_name != null && user.username != null && user.password != null && user.username === '') {
+            User.find({'username':user.username}, function(err, users) {
+                if (err) {
+                    res.status(500).send(err);
+                }
+                if (users.length < 1) {
+                    //Save the user and check for errors
+                    user.save(function(err) {
+                        if (err) {
+                            res.status(500).send(err);
+                        }
+
+                        res.status(201).json({ message: 'User created!' });
+                    });
+                } else {
+                    res.status(409).json({ success: false, error: true, message: 'This username is taken!' });
+                }
+            });
+        } else if(user.username === '' || user.username === null) {
+            res.status(409).json({ success: false, error: true, message: 'Missing or incorrect username' });
+        } else if(user.password === null) {
+            res.status(409).json({ success: false, error: true, message: 'Missing password' });
+        } else {
+            res.status(409).json({ success: false, error: true, message: 'Missing data' });
+        }
     });
 
 //Router middleware: you have to sign in to access everything beneath here
