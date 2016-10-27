@@ -154,7 +154,7 @@ router.route('/users')
             user.surname_prefix = '';
         }
 
-        if (user.last_name != null && user.first_name != null && user.username != null && user.password != null && user.username === '') {
+        if (user.last_name != null && user.first_name != null && user.username != null && user.password != null && user.username != '') {
             User.find({'username':user.username}, function(err, users) {
                 if (err) {
                     res.status(500).send(err);
@@ -164,9 +164,9 @@ router.route('/users')
                     user.save(function(err) {
                         if (err) {
                             res.status(500).send(err);
+                        } else {
+                            res.status(201).json({ message: 'User created!' });
                         }
-
-                        res.status(201).json({ message: 'User created!' });
                     });
                 } else {
                     res.status(409).json({ success: false, error: true, message: 'This username is taken!' });
@@ -218,8 +218,9 @@ router.route('/users')
         User.find({}, 'first_name surname_prefix last_name username ', function(err, users) {
             if (err) {
                 res.status(500).send(err);
+            } else {
+                res.status(200).json(users);
             }
-            res.status(200).json(users);
         });
     });
 
@@ -230,8 +231,9 @@ router.route('/users/:user_id')
         User.findById(req.params.user_id, 'first_name surname_prefix last_name username ', function(err, user) {
             if (err) {
                 res.status(500).send(err);
+            } else {
+                res.status(200).json(user);
             }
-            res.status(200).json(user);
         });
     });
 
@@ -241,6 +243,8 @@ router.route('/ratings')
 
 //Create a rating with POST http://localhost:8080/api/ratings)
     .post(function(req, res) {
+
+        //if (user.last_name != null && user.first_name != null && user.username != null && user.password != null && user.username === '') {
 
         var score = req.body.rating;
 
@@ -268,8 +272,9 @@ router.route('/ratings')
                 rating.save(function(err) {
                     if (err) {
                         res.status(500).send(err);
+                    } else {
+                        res.status(201).json({ message: 'Rating created!' });
                     }
-                    res.status(201).json({ message: 'Rating created!' });
                 });
             } else {
                 res.status(405).json({ message: 'You cannot rate a movie more than once' });
@@ -287,8 +292,9 @@ router.route('/ratings')
         Rating.find({'by_user':current_user},function(err, ratings) {
             if (err) {
                 res.status(500).send(err);
+            } else {
+                res.status(200).json(ratings);
             }
-            res.status(200).json(ratings);
         });
     });
 
@@ -303,8 +309,9 @@ router.route('/ratings/:rating_id')
             if(rating != null && rating.by_user == current_user) {
                 if (err) {
                     res.status(500).send(err);
+                } else {
+                    res.status(200).json(rating);
                 }
-                res.status(200).json(rating);
             } else {
                 res.status(403).json({ message: 'You do not have the neccesary permissions to view this rating! :(' });
             }
@@ -322,17 +329,20 @@ router.route('/ratings/:rating_id')
                     res.status(500).send(err);
                 }
 
-                rating.imdb_number = req.body.imdb_number;
-                rating.rating = req.body.rating;
-                rating.by_user = req.body.by_user;
+                if(req.body.imdb_number != null && !isNaN(req.body.imdb_number)) {
+                    rating.imdb_number = req.body.imdb_number;
+                }
+                if(req.body.rating != null && !isNaN(req.body.rating)){
+                    rating.rating = req.body.rating;
+                }
 
                 // save the rating
                 rating.save(function (err) {
                     if (err) {
                         res.status(500).send(err);
+                    } else {
+                        res.status(200).json({message: 'Rating updated!'});
                     }
-
-                    res.status(200).json({message: 'Rating updated!'});
                 });
             } else if (rating == null) {
                 res.status(204).json({ message: 'This rating does not exist :(' });

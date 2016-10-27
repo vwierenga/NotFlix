@@ -6,6 +6,8 @@ var mocha = require("mocha");
 var supertest = require("supertest");
 var assert = require('assert');
 
+var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNDc3NTc2NTY3LCJleHAiOjE0Nzc2NjI5Njd9.AbSR8uj7EEBLqkCzXXub2ERdXbnjudcyZPEwmnFQ1lg';
+
 
 // This agent refers to PORT where program is runninng.
 
@@ -14,8 +16,6 @@ var server = supertest.agent("http://localhost:8080");
 // UNIT test begin
 
 describe("Movies",function(){
-
-    // #1 should return home page
 
     it("Should return movies",function(done){
 
@@ -69,8 +69,6 @@ describe("Movies",function(){
 
 describe("Authenticate",function(){
 
-    // #1 should return home page
-
     it("Correct login should return token",function(done){
 
         // calling movie api
@@ -84,6 +82,8 @@ describe("Authenticate",function(){
                 res.statusCode.should.equal(200);
                 // Error key should be false.
                 res.error.should.equal(false);
+                res.body.should.have.property('token');
+                token = res.body.token;
                 done();
             });
     });
@@ -210,7 +210,7 @@ describe("Users",function(){
         // todo replace token with new token before starting the test.
         server
             .get("/api/users/")
-            .set({'x-access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNDc3NTY3NjQ0LCJleHAiOjE0Nzc2NTQwNDR9.SmwAZuFOx1kGvyfdVOvUEWrtODF1tt0J5W_r46DndYU'})
+            .set({'x-access-token': token})
             .expect("Content-type",/json/)
             .expect(200) // THis is HTTP response
             .end(function(err,res){
@@ -232,7 +232,7 @@ describe("Users",function(){
         // todo replace token with new token before starting the test.
         server
             .get("/api/users/57fe1e3fa4329a14bc935224")
-            .set({'x-access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNDc3NTY3NjQ0LCJleHAiOjE0Nzc2NTQwNDR9.SmwAZuFOx1kGvyfdVOvUEWrtODF1tt0J5W_r46DndYU'})
+            .set({'x-access-token': token})
             .expect("Content-type",/json/)
             .expect(200) // THis is HTTP response
             .end(function(err,res){
@@ -253,6 +253,75 @@ describe("Users",function(){
                 done();
             });
     });
+});
+
+describe("Ratings",function(){
+
+    it("Should return ratings",function(done){
+
+        server
+            .get("/api/ratings/")
+            .set({'x-access-token': token})
+            .expect("Content-type",/json/)
+            .expect(200) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(200);
+                // Error key should be false.
+                res.error.should.equal(false);
+                res.body[0].should.have.property('_id');
+                res.body[0].should.have.property('by_user');
+                res.body[0].should.have.property('rating');
+                res.body[0].should.have.property('imdb_number');
+                done();
+            });
+
+    });
+
+
+
+    it("Should update rating",function(done){
+
+        // todo replace token with new token before starting the test.
+        server
+            .put("/api/ratings/57fe4832fde2130f5cdcfc4c")
+            .set({'x-access-token': token})
+            .send({})
+            .expect("Content-type",/json/)
+            .expect(200) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(200);
+                // Error key should be false.
+                res.error.should.equal(false);
+                done();
+            });
+    });
+
+    it("Should return one rating",function(done){
+
+        // todo replace token with new token before starting the test.
+        server
+            .get("/api/ratings/57fe4832fde2130f5cdcfc4c")
+            .set({'x-access-token': token})
+            .expect("Content-type",/json/)
+            .expect(200) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(200);
+                // Error key should be false.
+                res.error.should.equal(false);
+                res.body.should.have.property('_id');
+                res.body.should.have.property('by_user');
+                res.body.should.have.property('rating');
+                res.body.should.have.property('imdb_number');
+                res.body._id.should.equal('57fe4832fde2130f5cdcfc4c');
+                res.body.by_user.should.equal('admin');
+                res.body.imdb_number.should.equal(402910);
+                done();
+            });
+    });
+
 });
 
 
