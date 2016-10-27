@@ -7,7 +7,7 @@
 .idea/
 *.iml
 *.iws
-data/*
+data/
 
 # Mac
 .DS_Store
