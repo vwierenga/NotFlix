@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <script type="text/javascript" src="js/index.js"></script>
+
+    <title>WorkingTitle</title>
+</head>
+<body>
+    <h1>Motherflippin test</h1>
+
+    <div>
+        <div id="login">
+            <fieldset>
+                <input placeholder="gebruikersnaam" type="text" name="username" required autofocus> </fieldset>
+            <fieldset>
+                <input placeholder="wachtwoord" type="text" name="password" required> </fieldset>
+        </div>
+        <div id="registerDiv" style="display: none;">
+            <fieldset>
+                <input placeholder="herhaal wachtwoord" type="text" name="password2" required> </fieldset>
+            <button onclick="register()">register</button>
+        </div>
+        <div id="loginButtons" style="display: block">
+
+            <button onclick="login()">login</button>
+            <button onclick="showRegister()">register</button>
+
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"/>
+    <script src="js/bootstrap.min.js"/>
+
+</body>
+</html>
