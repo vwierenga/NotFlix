@@ -207,7 +207,6 @@ describe("Users",function(){
 
     it("Should return users",function(done){
 
-        // todo replace token with new token before starting the test.
         server
             .get("/api/users/")
             .set({'x-access-token': token})
@@ -229,7 +228,6 @@ describe("Users",function(){
 
     it("Should return one user",function(done){
 
-        // todo replace token with new token before starting the test.
         server
             .get("/api/users/57fe1e3fa4329a14bc935224")
             .set({'x-access-token': token})
@@ -256,6 +254,22 @@ describe("Users",function(){
 });
 
 describe("Ratings",function(){
+
+    it("Adds a new rating should return 201",function(done){
+
+        // calling movie api
+        server
+            .post("/api/ratings/")
+            .send({})
+            .expect("Content-type",/json/)
+            .expect(409) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(409);
+                // Error key should be false.
+                done();
+            });
+    });
 
     it("Should return ratings",function(done){
 

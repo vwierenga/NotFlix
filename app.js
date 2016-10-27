@@ -244,40 +244,58 @@ router.route('/ratings')
 //Create a rating with POST http://localhost:8080/api/ratings)
     .post(function(req, res) {
 
-        //if (user.last_name != null && user.first_name != null && user.username != null && user.password != null && user.username === '') {
-
         var score = req.body.rating;
 
-        if(score >= 1 && score <= 10){ //Rating from 1 to 10, 1 = 0.5 stars, 10 = 5 stars
-            var rating = new Rating();
-            rating.imdb_number = req.body.imdb_number;
-            rating.rating = req.body.rating;
-            rating.by_user = req.body.by_user;
+        if(!isNaN(score) && score >= 1 && score <= 10){ //Rating from 1 to 10, 1 = 0.5 stars, 10 = 5 stars
 
-            var alreadyexistingrating = true;
-            var current_user = req.decoded.username;
+            if (req.body.imdb_number != null && req.body.rating != null && !isNaN(req.body.imdb_number)) {
 
-            Rating.find({'by_user':current_user, 'imdb_number':rating.imdb_number},function(err, ratings) {
-                if (err) {
-                    res.status(500).send(err);
-                }
-                console.log(ratings);
-                if(ratings == null || ratings.lenght == 0) {
-                    alreadyexistingrating = false;
-                }
-            });
+                var newRating = new Rating();
+                newRating.imdb_number = req.body.imdb_number;
+                newRating.rating = req.body.rating;
+                newRating.by_user = req.decoded.username;
 
-            if(!alreadyexistingrating) {
-                //Save the user and check for errors
-                rating.save(function(err) {
+                var alreadyexistingrating = true;
+
+                var current_user = req.decoded.username;
+
+                Rating.find({'imdb_number': req.body.imdb_number}, function (err, ratings) {
                     if (err) {
                         res.status(500).send(err);
+                    }
+
+                    if (typeof ratings[0] === "undefined") {
+                        alreadyexistingrating = false;
+                        //console.log("L270 Alreadyexistingrating = " + alreadyexistingrating);
                     } else {
-                        res.status(201).json({ message: 'Rating created!' });
+                        var found = false;
+                        for (var i = 0, len = ratings.length; i < len; i++) {
+                            var rating = ratings[i];
+                            if (rating.by_user === current_user){
+                                found = true;
+                            }
+                        }
+                        if (found === false) {
+                            alreadyexistingrating = false;
+                        }
+                    }
+
+                    if (!alreadyexistingrating) {
+                        //Save the user and check for errors
+                        newRating.save(function (err) {
+                            if (err) {
+                                res.status(500).send(err);
+                            } else {
+                                res.status(201).json({message: 'Rating created!'});
+                            }
+                        });
+                    } else {
+                        res.status(405).json({message: 'You cannot rate a movie more than once'});
                     }
                 });
+
             } else {
-                res.status(405).json({ message: 'You cannot rate a movie more than once' });
+                res.status(409).json({ success: false, error: true, message: 'Missing or incorrect data' });
             }
         } else {
             res.status(405).json({ message: 'The score should be between 1 and 10 inclusive' });
