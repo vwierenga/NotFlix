@@ -348,7 +348,6 @@ describe("Ratings",function(){
 
     it("Should update rating",function(done){
 
-        // todo replace token with new token before starting the test.
         server
             .put("/api/ratings/" + id)
             .set({'x-access-token': token})
@@ -366,7 +365,6 @@ describe("Ratings",function(){
 
     it("Should delete the created rating",function(done){
 
-        // todo replace token with new token before starting the test.
         server
             .delete("/api/ratings/" + id)
             .set({'x-access-token': token})
@@ -381,9 +379,36 @@ describe("Ratings",function(){
             });
     });
 
+    it("Tries to delete non existing rating should return 204",function(done){
+
+        server
+            .delete("/api/ratings/57fe1e3fa4329a14bc9352564")
+            .set({'x-access-token': token})
+            .expect("Content-type",/json/)
+            .expect(204) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(204);
+                done();
+            });
+    });
+
+    it("Tries to delete rating made by someone else should return 403",function(done){
+
+        server
+            .delete("/api/ratings/57fe4813fde2130f5cdcfc4b")
+            .set({'x-access-token': token})
+            .expect("Content-type",/json/)
+            .expect(403) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(403);
+                done();
+            });
+    });
+
     it("Should return one rating",function(done){
 
-        // todo replace token with new token before starting the test.
         server
             .get("/api/ratings/57fe4832fde2130f5cdcfc4c")
             .set({'x-access-token': token})
@@ -401,6 +426,20 @@ describe("Ratings",function(){
                 res.body._id.should.equal('57fe4832fde2130f5cdcfc4c');
                 res.body.by_user.should.equal('admin');
                 res.body.imdb_number.should.equal(402910);
+                done();
+            });
+    });
+
+    it("Tries to display rating from someone else should return 403",function(done){
+
+        server
+            .get("/api/ratings/57fe4813fde2130f5cdcfc4b")
+            .set({'x-access-token': token})
+            .expect("Content-type",/json/)
+            .expect(403) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(403);
                 done();
             });
     });

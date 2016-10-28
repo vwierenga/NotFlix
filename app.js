@@ -399,4 +399,4 @@ app.use('/api', router);
 
 //Start the server
 app.listen(port);
-console.log('listening on port 8080')
+console.log('listening on port 8080');
