@@ -255,21 +255,72 @@ describe("Users",function(){
 
 describe("Ratings",function(){
 
+    var id;
+
     it("Adds a new rating should return 201",function(done){
 
-        // calling movie api
         server
             .post("/api/ratings/")
-            .send({})
+            .set({'x-access-token': token})
+            .send({'imdb_number': 402920, 'rating': 6})
             .expect("Content-type",/json/)
-            .expect(409) // THis is HTTP response
+            .expect(201) // THis is HTTP response
             .end(function(err,res){
                 // HTTP status should be 200
-                res.statusCode.should.equal(409);
+                res.statusCode.should.equal(201);
                 // Error key should be false.
                 done();
             });
     });
+
+    it("Adds a rating that already exists should return 405",function(done){
+
+        server
+            .post("/api/ratings/")
+            .set({'x-access-token': token})
+            .send({'imdb_number': 402920, 'rating': 6})
+            .expect("Content-type",/json/)
+            .expect(405) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(405);
+                // Error key should be false.
+                done();
+            });
+    });
+
+    it("Adds a rating with a score higher than 10 should return 405",function(done){
+
+        server
+            .post("/api/ratings/")
+            .set({'x-access-token': token})
+            .send({'imdb_number': 402921, 'rating': 11})
+            .expect("Content-type",/json/)
+            .expect(405) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(405);
+                // Error key should be false.
+                done();
+            });
+    });
+
+    it("Adds a rating without a score should return 409",function(done){
+
+        server
+            .post("/api/ratings/")
+            .set({'x-access-token': token})
+            .send({'imdb_number': 402921})
+            .expect("Content-type",/json/)
+            .expect(405) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(405);
+                // Error key should be false.
+                done();
+            });
+    });
+
 
     it("Should return ratings",function(done){
 
@@ -287,6 +338,7 @@ describe("Ratings",function(){
                 res.body[0].should.have.property('by_user');
                 res.body[0].should.have.property('rating');
                 res.body[0].should.have.property('imdb_number');
+                id = res.body[2]._id;
                 done();
             });
 
@@ -298,9 +350,26 @@ describe("Ratings",function(){
 
         // todo replace token with new token before starting the test.
         server
-            .put("/api/ratings/57fe4832fde2130f5cdcfc4c")
+            .put("/api/ratings/" + id)
             .set({'x-access-token': token})
-            .send({})
+            .send({'rating': 8})
+            .expect("Content-type",/json/)
+            .expect(200) // THis is HTTP response
+            .end(function(err,res){
+                // HTTP status should be 200
+                res.statusCode.should.equal(200);
+                // Error key should be false.
+                res.error.should.equal(false);
+                done();
+            });
+    });
+
+    it("Should delete the created rating",function(done){
+
+        // todo replace token with new token before starting the test.
+        server
+            .delete("/api/ratings/" + id)
+            .set({'x-access-token': token})
             .expect("Content-type",/json/)
             .expect(200) // THis is HTTP response
             .end(function(err,res){
