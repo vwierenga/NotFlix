@@ -11,13 +11,15 @@ var config = require('./config');
 var app = express();
 
 //Load models
-var Movie = require('./models/movie')
-var User = require('./models/user')
-var Rating = require('./models/rating')
+var Movie = require('./models/movie');
+var User = require('./models/user');
+var Rating = require('./models/rating');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('secret', config.secret);
+
+app.use(express.static('public'));
 
 //Define port
 var port = config.port;
@@ -26,6 +28,99 @@ var router = express.Router();
 
 //Connect to notflix database
 mongoose.connect(config.database);
+var db = mongoose.connection;
+
+db.once('open', function () {
+    console.log('db: Connected!');
+    db.db.dropDatabase();
+    var movie = new Movie();
+    movie.imdb_number = 1297919;
+    movie.title = "Blitz";
+    movie.published_at = new Date(20-5-2011);
+    movie.length = 97;
+    movie.director = "Elliott Lester";
+    movie.short_description = "A tough cop is dispatched to take down a serial killer who has been targeting police officers.";
+    movie.save(function (err) {
+        if (err) {
+            console.log("Movie not saved");
+        } else {
+            console.log("Movie added");
+        }
+    });
+
+    var movie = new Movie();
+    movie.imdb_number = 1904996;
+    movie.title = "Parker";
+    movie.published_at = new Date(8-3-2013);
+    movie.length = 118;
+    movie.director = "Taylor Hackford";
+    movie.short_description = "A thief with a unique code of professional ethics is double-crossed by his crew and left for dead. Assuming a new disguise and forming an unlikely alliance with a woman on the inside, he looks to hijack the score of the crew's latest heist.";
+    movie.save(function (err) {
+        if (err) {
+            console.log("Movie not saved");
+        } else {
+            console.log("Movie added");
+        }
+    });
+
+    var movie = new Movie();
+    movie.imdb_number = 1656190;
+    movie.title = "Safe";
+    movie.published_at = new Date(4-5-2012);
+    movie.length = 94;
+    movie.director = "Boaz Yakin";
+    movie.short_description = "Mei, a young girl whose memory holds a priceless numerical code, finds herself pursued by the Triads, the Russian mob, and corrupt NYC cops. Coming to her aid is an ex-cage fighter whose life was destroyed by the gangsters on Mei's trail.";
+    movie.save(function (err) {
+        if (err) {
+            console.log("Movie not saved");
+        } else {
+            console.log("Movie added");
+        }
+    });
+
+    var movie = new Movie();
+    movie.imdb_number = 200465;
+    movie.title = "The Bank Job";
+    movie.published_at = new Date(28-2-2008);
+    movie.length = 111;
+    movie.director = "Roger Donaldson";
+    movie.short_description = "Martine offers Terry a lead on a foolproof bank hit on London's Baker Street. She targets a roomful of safe deposit boxes worth millions in cash and jewelry. But Terry and his crew don't realize the boxes also contain a treasure trove of dirty secrets - secrets that will thrust them into a deadly web of corruption and illicit scandal.";
+    movie.save(function (err) {
+        if (err) {
+            console.log("Movie not saved");
+        } else {
+            console.log("Movie added");
+        }
+    });
+
+    var movie = new Movie();
+    movie.imdb_number = 479884;
+    movie.title = "Crank";
+    movie.published_at = new Date(1-9-2006);
+    movie.length = 88;
+    movie.director = "Mark Neveldine & Brian Taylor";
+    movie.short_description = "Professional assassin Chev Chelios learns his rival has injected him with a poison that will kill him if his heart rate drops.";
+    movie.save(function (err) {
+        if (err) {
+            console.log("Movie not saved");
+        } else {
+            console.log("Movie added");
+        }
+    });
+
+    var user = new User();
+    user.first_name = "Vincent";
+    user.last_name = "Wierenga";
+    user.username = "admin";
+    user.password = "password";
+    movie.save(function (err) {
+        if (err) {
+            console.log("User not saved");
+        } else {
+            console.log("User added");
+        }
+    });
+});
 
 //Test the connection to the database
 var db = mongoose.connection;
@@ -37,7 +132,7 @@ db.once('open', function() {
 //Test the router
 /*
 router.get('/', function(req, res) {
-    res.status(200).json({ message: 'hooray! welcome to our api!' });
+    res.header('Access-Control-Allow-Origin', '*').status(200).json({ message: 'hooray! welcome to our api!' });
 }); */
 
 //Code for /authenticate
@@ -46,19 +141,21 @@ router.route('/authenticate')
     .post(function(req, res) {
 
         // find the user
+        console.log(req.body.username);
         User.findOne({
             username: req.body.username
+
         }, function(err, user) {
 
             if (err) throw err;
 
             if (!user) {
-                res.status(401).json({ error: true, success: false, message: 'Authentication failed. User not found.' });
+                res.header('Access-Control-Allow-Origin', '*').status(401).json({ error: true, success: false, message: 'Authentication failed. User not found.' });
             } else if (user) {
 
                 // check if password matches
                 if (user.password != req.body.password) {
-                    res.status(401).json({ error: true, success: false, message: 'Authentication failed. Wrong password.' });
+                    res.header('Access-Control-Allow-Origin', '*').status(401).json({ error: true, success: false, message: 'Authentication failed. Wrong password.' });
                 } else {
 
                     // if user is found and password is right
@@ -74,7 +171,7 @@ router.route('/authenticate')
                     //console.log(jwt.decode(token))
 
                     // return the information including token as JSON
-                    res.status(200).json({
+                    res.header('Access-Control-Allow-Origin', '*').status(200).json({
                         error: false,
                         success: true,
                         message: 'Enjoy your token!',
@@ -93,9 +190,9 @@ router.route('/movies')
     .get(function(req, res) {
         Movie.find(function(err, movies) {
             if (err) {
-                res.status(500).send(err);
+                res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
             }
-            res.status(200).json(movies);
+            res.header('Access-Control-Allow-Origin', '*').status(200).json(movies);
         });
     });
 
@@ -105,11 +202,38 @@ router.route('/movies/:imdb_number')
     .get(function(req, res) {
         Movie.find({'imdb_number':req.params.imdb_number}, function(err, movie) {
             if (err) {
-                res.status(500).send(err);
+                res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
             }
-            res.status(200).json(movie);
+            res.header('Access-Control-Allow-Origin', '*').status(200).json(movie);
         });
     });
+
+function searchRatings(movie) {
+    Rating.find({'imdb_number':movie.imdb_number}, 'rating', function(err, ratings) {
+        if (err) {
+            res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
+        }
+        var totalscore = [0, 1];
+        for (var j = 0, len = ratings.length; j < len; j++) {
+            totalscore[j] = ratings[j].rating;
+        }
+
+        var ratedMovie = {};
+        ratedMovie.title = movie.title;
+        ratedMovie.imdb_number = movie.imdb_number;
+        ratedMovie.published_at = movie.published_at;
+
+        if (totalscore > 0) {
+            ratedMovie.rating = (totalscore/totalscore.lenght);
+        } else {
+            ratedMovie.rating = 11;
+        }
+        console.log("totalscore: " + totalscore + "Length: " + totalscore.lenght)
+
+        return ratedMovie;
+    });
+
+}
 
 router.route('/movieswithrating')
 
@@ -117,22 +241,25 @@ router.route('/movieswithrating')
     .get(function(req, res) {
         Movie.find(function(err, movies) {
             if (err) {
-                res.status(500).send(err);
+                res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
             }
+            var ratedMovies = [];
+            //fruits.push("Lemon");
             for (var i = 0, len = movies.length; i < len; i++) {
-                var movie = movies[i].imdb_number;
-                Rating.find({'imdb_number':movie.imdb_number}, 'rating', function(err, ratings) {
-                    if (err) {
-                        res.status(500).send(err);
-                    }
-                    var totalscore = 0;
-                    for (var j = 0, len = ratings.length; j < len; j++) {
-                        totalscore = totalscore + ratings[j];
-                    }
-                    movie.set('rating', (totalscore/totalscore.lenght))
-                });
+                var ratedMovie = searchRatings(movies[i]);
+                if (typeof ratedMovie === "undefined") {
+                    console.log("no rating");
+                } else {
+                    ratedMovies.push(ratedMovie);
+                    console.log(ratedMovie);
+                }
+                /*
+                if(ratedMovie.rating < 11) {
+                    ratedMovies.push(ratedMovie);
+                } */
             }
-            res.status(200).json(movies);
+            //console.log(ratedMovies);
+            res.header('Access-Control-Allow-Origin', '*').status(200).json(movies);
         });
     });
 
@@ -157,27 +284,27 @@ router.route('/users')
         if (user.last_name != null && user.first_name != null && user.username != null && user.password != null && user.username != '') {
             User.find({'username':user.username}, function(err, users) {
                 if (err) {
-                    res.status(500).send(err);
+                    res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
                 }
                 if (users.length < 1) {
                     //Save the user and check for errors
                     user.save(function(err) {
                         if (err) {
-                            res.status(500).send(err);
+                            res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
                         } else {
-                            res.status(201).json({ message: 'User created!' });
+                            res.header('Access-Control-Allow-Origin', '*').status(201).json({ message: 'User created!' });
                         }
                     });
                 } else {
-                    res.status(409).json({ success: false, error: true, message: 'This username is taken!' });
+                    res.header('Access-Control-Allow-Origin', '*').status(409).json({ success: false, error: true, message: 'This username is taken!' });
                 }
             });
         } else if(user.username === '' || user.username === null) {
-            res.status(409).json({ success: false, error: true, message: 'Missing or incorrect username' });
+            res.header('Access-Control-Allow-Origin', '*').status(409).json({ success: false, error: true, message: 'Missing or incorrect username' });
         } else if(user.password === null) {
-            res.status(409).json({ success: false, error: true, message: 'Missing password' });
+            res.header('Access-Control-Allow-Origin', '*').status(409).json({ success: false, error: true, message: 'Missing password' });
         } else {
-            res.status(409).json({ success: false, error: true, message: 'Missing data' });
+            res.header('Access-Control-Allow-Origin', '*').status(409).json({ success: false, error: true, message: 'Missing data' });
         }
     });
 
@@ -193,7 +320,7 @@ router.use(function(req, res, next) {
         // verifies secret and checks exp
         jwt.verify(token, app.get('secret'), function(err, decoded) {
             if (err) {
-                return res.status(500).json({ success: false, message: 'Failed to authenticate token.' });
+                return res.header('Access-Control-Allow-Origin', '*').status(500).json({ success: false, message: 'Failed to authenticate token.' });
             } else {
                 // if everything is good, save to request for use in other routes
                 req.decoded = decoded;
@@ -204,7 +331,7 @@ router.use(function(req, res, next) {
 
         // if there is no token
         // return an error
-        return res.status(403).send({
+        return res.header('Access-Control-Allow-Origin', '*').status(403).send({
             success: false,
             message: 'No token provided.'
         });
@@ -217,9 +344,9 @@ router.route('/users')
     .get(function(req, res) {
         User.find({}, 'first_name surname_prefix last_name username ', function(err, users) {
             if (err) {
-                res.status(500).send(err);
+                res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
             } else {
-                res.status(200).json(users);
+                res.header('Access-Control-Allow-Origin', '*').status(200).json(users);
             }
         });
     });
@@ -230,9 +357,9 @@ router.route('/users/:user_id')
     .get(function(req, res) {
         User.findById(req.params.user_id, 'first_name surname_prefix last_name username ', function(err, user) {
             if (err) {
-                res.status(500).send(err);
+                res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
             } else {
-                res.status(200).json(user);
+                res.header('Access-Control-Allow-Origin', '*').status(200).json(user);
             }
         });
     });
@@ -261,7 +388,7 @@ router.route('/ratings')
 
                 Rating.find({'imdb_number': req.body.imdb_number}, function (err, ratings) {
                     if (err) {
-                        res.status(500).send(err);
+                        res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
                     }
 
                     if (typeof ratings[0] === "undefined") {
@@ -284,21 +411,21 @@ router.route('/ratings')
                         //Save the user and check for errors
                         newRating.save(function (err) {
                             if (err) {
-                                res.status(500).send(err);
+                                res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
                             } else {
-                                res.status(201).json({message: 'Rating created!'});
+                                res.header('Access-Control-Allow-Origin', '*').status(201).json({message: 'Rating created!'});
                             }
                         });
                     } else {
-                        res.status(405).json({message: 'You cannot rate a movie more than once'});
+                        res.header('Access-Control-Allow-Origin', '*').status(405).json({message: 'You cannot rate a movie more than once'});
                     }
                 });
 
             } else {
-                res.status(409).json({ success: false, error: true, message: 'Missing or incorrect data' });
+                res.header('Access-Control-Allow-Origin', '*').status(409).json({ success: false, error: true, message: 'Missing or incorrect data' });
             }
         } else {
-            res.status(405).json({ message: 'The score should be between 1 and 10 inclusive' });
+            res.header('Access-Control-Allow-Origin', '*').status(405).json({ message: 'The score should be between 1 and 10 inclusive' });
         }
     })
 
@@ -309,9 +436,9 @@ router.route('/ratings')
 
         Rating.find({'by_user':current_user},function(err, ratings) {
             if (err) {
-                res.status(500).send(err);
+                res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
             } else {
-                res.status(200).json(ratings);
+                res.header('Access-Control-Allow-Origin', '*').status(200).json(ratings);
             }
         });
     });
@@ -326,12 +453,12 @@ router.route('/ratings/:rating_id')
         Rating.findById(req.params.rating_id, function(err, rating) {
             if(rating != null && rating.by_user == current_user) {
                 if (err) {
-                    res.status(500).send(err);
+                    res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
                 } else {
-                    res.status(200).json(rating);
+                    res.header('Access-Control-Allow-Origin', '*').status(200).json(rating);
                 }
             } else {
-                res.status(403).json({ message: 'You do not have the neccesary permissions to view this rating! :(' });
+                res.header('Access-Control-Allow-Origin', '*').status(403).json({ message: 'You do not have the neccesary permissions to view this rating! :(' });
             }
         });
     })
@@ -344,7 +471,7 @@ router.route('/ratings/:rating_id')
         Rating.findById(req.params.rating_id, function(err, rating) {
             if (rating != null && rating.by_user == current_user) {
                 if (err) {
-                    res.status(500).send(err);
+                    res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
                 }
 
                 if(req.body.imdb_number != null && !isNaN(req.body.imdb_number)) {
@@ -357,15 +484,15 @@ router.route('/ratings/:rating_id')
                 // save the rating
                 rating.save(function (err) {
                     if (err) {
-                        res.status(500).send(err);
+                        res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
                     } else {
-                        res.status(200).json({message: 'Rating updated!'});
+                        res.header('Access-Control-Allow-Origin', '*').status(200).json({message: 'Rating updated!'});
                     }
                 });
             } else if (rating == null) {
-                res.status(204).json({ message: 'This rating does not exist :(' });
+                res.header('Access-Control-Allow-Origin', '*').status(204).json({ message: 'This rating does not exist :(' });
             } else {
-                res.status(403).json({ message: 'You do not have the neccesary permissions to modify this rating! :(' });
+                res.header('Access-Control-Allow-Origin', '*').status(403).json({ message: 'You do not have the neccesary permissions to modify this rating! :(' });
             }
         });
     })
@@ -380,15 +507,15 @@ router.route('/ratings/:rating_id')
                     _id: req.params.rating_id
                 }, function(err, rating) {
                     if (err) {
-                        res.status(500).send(err);
+                        res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
                     }
 
-                    res.status(200).json({ message: 'Rating deleted!' });
+                    res.header('Access-Control-Allow-Origin', '*').status(200).json({ message: 'Rating deleted!' });
                 });
             } else if (rating == null) {
-                res.status(204).json({ message: 'This rating does not exist :(' });
+                res.header('Access-Control-Allow-Origin', '*').status(204).json({ message: 'This rating does not exist :(' });
             } else {
-                res.status(403).json({ message: 'You do not have the neccesary permissions to modify this rating! :(' });
+                res.header('Access-Control-Allow-Origin', '*').status(403).json({ message: 'You do not have the neccesary permissions to modify this rating! :(' });
             }
         });
     });
@@ -400,3 +527,80 @@ app.use('/api', router);
 //Start the server
 app.listen(port);
 console.log('listening on port 8080');
+
+/*
+var movie = new Movie();
+movie.imdb_number = 1297919;
+movie.title = "Blitz";
+movie.published_at = new Date(20-5-2011);
+movie.length = 97;
+movie.director = "Elliott Lester";
+movie.short_description = "A tough cop is dispatched to take down a serial killer who has been targeting police officers.";
+movie.save(function (err) {
+    if (err) {
+        console.log("Movie not saved");
+    } else {
+        console.log("Movie added");
+    }
+});
+
+var movie = new Movie();
+movie.imdb_number = 1904996;
+movie.title = "Parker";
+movie.published_at = new Date(8-3-2013);
+movie.length = 118;
+movie.director = "Taylor Hackford";
+movie.short_description = "A thief with a unique code of professional ethics is double-crossed by his crew and left for dead. Assuming a new disguise and forming an unlikely alliance with a woman on the inside, he looks to hijack the score of the crew's latest heist.";
+movie.save(function (err) {
+    if (err) {
+        console.log("Movie not saved");
+    } else {
+        console.log("Movie added");
+    }
+});
+
+var movie = new Movie();
+movie.imdb_number = 1656190;
+movie.title = "Safe";
+movie.published_at = new Date(4-5-2012);
+movie.length = 94;
+movie.director = "Boaz Yakin";
+movie.short_description = "Mei, a young girl whose memory holds a priceless numerical code, finds herself pursued by the Triads, the Russian mob, and corrupt NYC cops. Coming to her aid is an ex-cage fighter whose life was destroyed by the gangsters on Mei's trail.";
+movie.save(function (err) {
+    if (err) {
+        console.log("Movie not saved");
+    } else {
+        console.log("Movie added");
+    }
+});
+
+var movie = new Movie();
+movie.imdb_number = 200465;
+movie.title = "The Bank Job";
+movie.published_at = new Date(28-2-2008);
+movie.length = 111;
+movie.director = "Roger Donaldson";
+movie.short_description = "Martine offers Terry a lead on a foolproof bank hit on London's Baker Street. She targets a roomful of safe deposit boxes worth millions in cash and jewelry. But Terry and his crew don't realize the boxes also contain a treasure trove of dirty secrets - secrets that will thrust them into a deadly web of corruption and illicit scandal.";
+movie.save(function (err) {
+    if (err) {
+        console.log("Movie not saved");
+    } else {
+        console.log("Movie added");
+    }
+});
+
+var movie = new Movie();
+movie.imdb_number = 479884;
+movie.title = "Crank";
+movie.published_at = new Date(1-9-2006);
+movie.length = 88;
+movie.director = "Mark Neveldine & Brian Taylor";
+movie.short_description = "Professional assassin Chev Chelios learns his rival has injected him with a poison that will kill him if his heart rate drops.";
+movie.save(function (err) {
+    if (err) {
+        console.log("Movie not saved");
+    } else {
+        console.log("Movie added");
+    }
+}); */
+

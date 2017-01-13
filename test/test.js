@@ -27,6 +27,12 @@ describe("Movies",function(){
             .end(function(err,res){
                 // HTTP status should be 200
                 res.statusCode.should.equal(200);
+                res.body[0].should.have.property('_id');
+                res.body[0].should.have.property('short_description');
+                res.body[0].should.have.property('title');
+                res.body[0].should.have.property('imdb_number');
+                res.body[0].should.have.property('director');
+                res.body[0].should.have.property('published_at');
                 // Error key should be false.
                 res.error.should.equal(false);
                 done();
@@ -37,12 +43,22 @@ describe("Movies",function(){
 
         // calling movie api
         server
-            .get("/api/movies/0402910")
+            .get("/api/movies/1297919")
             .expect("Content-type",/json/)
             .expect(200) // THis is HTTP response
             .end(function(err,res){
                 // HTTP status should be 200
                 res.statusCode.should.equal(200);
+                res.body[0].should.have.property('_id');
+                res.body[0].should.have.property('short_description');
+                res.body[0].should.have.property('title');
+                res.body[0].should.have.property('imdb_number');
+                res.body[0].should.have.property('director');
+                res.body[0].should.have.property('published_at');
+                res.body[0]._id.should.equal('5815e69f4a36741b50e3b9b2');
+                res.body[0].title.should.equal('Blitz');
+                res.body[0].imdb_number.should.equal(1297919);
+                res.body[0].director.should.equal('Elliott Lester');
                 // Error key should be false.
                 res.error.should.equal(false);
                 done();
@@ -135,8 +151,8 @@ describe("Users",function(){
             .expect("Content-type",/json/)
             .expect(409) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
-                res.statusCode.should.equal(409);
+                // HTTP status should be 201
+                res.statusCode.should.equal(201);
                 // Error key should be false.
                 done();
             });
@@ -152,7 +168,7 @@ describe("Users",function(){
             .expect("Content-type",/json/)
             .expect(409) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
+                // HTTP status should be 409
                 res.statusCode.should.equal(409);
                 // Error key should be false.
                 done();
@@ -168,7 +184,7 @@ describe("Users",function(){
             .expect("Content-type",/json/)
             .expect(409) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
+                // HTTP status should be 409
                 res.statusCode.should.equal(409);
                 // Error key should be false.
                 done();
@@ -184,7 +200,7 @@ describe("Users",function(){
             .expect("Content-type",/json/)
             .expect(409) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
+                // HTTP status should be 409
                 res.statusCode.should.equal(409);
                 // Error key should be false.
                 done();
@@ -266,7 +282,7 @@ describe("Ratings",function(){
             .expect("Content-type",/json/)
             .expect(201) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
+                // HTTP status should be 201
                 res.statusCode.should.equal(201);
                 // Error key should be false.
                 done();
@@ -282,7 +298,7 @@ describe("Ratings",function(){
             .expect("Content-type",/json/)
             .expect(405) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
+                // HTTP status should be 405
                 res.statusCode.should.equal(405);
                 // Error key should be false.
                 done();
@@ -298,7 +314,7 @@ describe("Ratings",function(){
             .expect("Content-type",/json/)
             .expect(405) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
+                // HTTP status should be 405
                 res.statusCode.should.equal(405);
                 // Error key should be false.
                 done();
@@ -314,7 +330,7 @@ describe("Ratings",function(){
             .expect("Content-type",/json/)
             .expect(405) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
+                // HTTP status should be 405
                 res.statusCode.should.equal(405);
                 // Error key should be false.
                 done();
@@ -387,7 +403,7 @@ describe("Ratings",function(){
             .expect("Content-type",/json/)
             .expect(204) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
+                // HTTP status should be 204
                 res.statusCode.should.equal(204);
                 done();
             });
@@ -401,7 +417,7 @@ describe("Ratings",function(){
             .expect("Content-type",/json/)
             .expect(403) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
+                // HTTP status should be 403
                 res.statusCode.should.equal(403);
                 done();
             });
@@ -438,7 +454,7 @@ describe("Ratings",function(){
             .expect("Content-type",/json/)
             .expect(403) // THis is HTTP response
             .end(function(err,res){
-                // HTTP status should be 200
+                // HTTP status should be 403
                 res.statusCode.should.equal(403);
                 done();
             });
