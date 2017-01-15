@@ -1,8 +1,24 @@
 body {
-    padding-top: 15px;
+    padding-top: 65px;
 }
 
 .movie-poster{
     max-height: 400px;
     padding-bottom: 0.154%;
+}
+
+.movie{
+    margin: 6px;
+}
+
+.movieTitle{
+    margin-top: 0;
+}
+
+.movieRatingList {
+    float: left;
+    display: block;
+    padding-left: 10px;
+    text-decoration: none;
+    list-style: none;
 }

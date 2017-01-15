@@ -3,24 +3,23 @@
  */
 
 $(document).ready(function() {
-    getMovies();
-    login("admin", "password");
-
     if (localStorage.username) {
         console.log(localStorage.getItem("username"));
     } else {
-        console.log("No saved username");
+        window.location.href = "login.html";
     }
 
     if (localStorage.token) {
         console.log(localStorage.getItem("token"));
     } else {
-        console.log("No saved token");
+        window.location.href = "login.html";
     }
 
-    getMovieByImdbNumber(1656190);
-
-    getUsers();
+    //movieDetails.html?imdbnumber=1656190
+    var imdbNumber = findGetParameter('imdbnumber');
+    if (imdbNumber != null && imdbNumber != ""){
+        getMovieByImdbNumber(imdbNumber);
+    }
 });
 
 function getMovieByImdbNumber(imdbNumber) {
@@ -51,7 +50,7 @@ function displayMovieDetails(movie) {
                 '<h3 class="movieTitle" id="movieTitle">' + movieTitle + '</h3>' +
                 '<p><img class="img-responsive movie-poster" id="moviePoster" src="' + posterlink + '" alt="Chania"> </p>' +
             '</div>' +
-            '<div id="movieRatings" class="movie col-xs-12 col-sm-5 col-md-4 col-lg-2">' +
+            '<div id="movieRatings" class="movie col-xs-12 col-sm-5 col-md-4 col-lg-3">' +
                 '<h4>Ratings</h4>' +
                 '<ul class="movieRatingList">' +
                     '<li id="averageRating">Movie not yet rated</li>' +
@@ -67,7 +66,14 @@ function displayMovieDetails(movie) {
         $.ajax({
             method: "GET",
             url: "http://localhost:8080/api/ratings",
-            headers: { 'x-access-token': localStorage.getItem("token") }
+            headers: { 'x-access-token': localStorage.getItem("token") },
+            error: function (xhr, ajaxOptions, thrownError) {
+                if(xhr.status == 500 || xhr.status == 403) {
+                    alert("Please log in");
+                    console.log(xhr.status);
+                    window.location.href = "login.html";
+                }
+            }
         }).then(function(ratingsData) {
             if(ratingsData.length > 0) {
                 for (var i = 0, len = ratingsData.length; i < len; i++) {
@@ -77,12 +83,15 @@ function displayMovieDetails(movie) {
                         totalRating += ratingsData[i].rating;
                         numberOfRatings++;
                     }
-                    if (ratingsData[i].by_user == userName) {
+                    if (ratingsData[i].by_user == userName && ratingsData[i].imdb_number == movieIMDBNumber) {
                         yourRating = ratingsData[i].rating;
                     }
                 }
 
                 var averageRating = totalRating/numberOfRatings;
+                if(numberOfRatings == 0){
+                    averageRating = "Not available";
+                }
 
                 if(yourRating == 11){
                     var yourRatingText = "You haven't rated this movie"
@@ -104,57 +113,15 @@ function displayMovieDetails(movie) {
 
 }
 
-function getMovies() {
-    $.ajax({
-        type:'GET',
-        url: "http://localhost:8080/api/movies"
-    }).then(function(movieData) {
-        for (var i = 0, len = movieData.length; i < len; i++) {
-            displayMovie(movieData[i].title, movieData[i].imdb_number)
-        }
-    });
-}
-
-function displayMovie(title, imdbNumber) {
-    //http://www.omdbapi.com/?t=blitz&y=&plot=short&r=json
-    $.ajax({
-        type:'GET',
-        url: "http://www.omdbapi.com/?t=" + title + "&y=&plot=short&r=json"
-    }).then(function(data) {
-        $("#movies").append("<div class='movie well col-sm-6 col-md-4 col-lg-2'> <h3 class='movieTitle'>" + title + "</h3> <p> <img class='img-responsive movie-poster' src='" + data.Poster + "' alt='Chania'> </p><p><a href='movieDetails.html?imdbnumber=" + imdbNumber + "'  class='btn btn-success'>More &raquo;</a></p></div>");
-    });
-}
-
-function login(username, password) {
-    $.ajax({
-        method: "POST",
-        url: "http://localhost:8080/api/authenticate",
-        data: { username: username, password: password }
-    }).then(function(data) {
-        //console.log(data.token);
-        localStorage.setItem("username", username);
-        localStorage.setItem("token", data.token);
-    });
-}
-
-function getUsers() {
-    $.ajax({
-        method: "GET",
-        url: "http://localhost:8080/api/users",
-        headers: { 'x-access-token': localStorage.getItem("token") }
-    }).then(function(data) {
-        console.log(data);
-    });
-}
-
-function getRatings() {
-    $.ajax({
-        method: "GET",
-        url: "http://localhost:8080/api/ratings",
-        headers: { 'x-access-token': localStorage.getItem("token") }
-    }).then(function(data) {
-        console.log(data);
-    });
+function findGetParameter(parameterName) {
+    var result = null,
+        tmp = [];
+    var items = location.search.substr(1).split("&");
+    for (var index = 0; index < items.length; index++) {
+        tmp = items[index].split("=");
+        if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+    }
+    return result;
 }
 
 

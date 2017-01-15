@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Notflix Movie Database</title>
+
+    <link rel="stylesheet" href="css/test.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/login.js"></script>
+</head>
+<body>
+<nav id="myNavbar" class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Notflix</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+
+    </div>
+</nav>
+
+<div class="container">
+    <div class="well col-sm-12 col-md-12 col-lg-12">
+        <div class="col-sm-6 col-md-6 col-lg-6">
+            <h3>Login</h3>
+            <form id="signin" class="navbar-form navbar-left" role="form">
+                <fieldset>
+                    <input id="loginUsername" type="text" class="form-control" name="loginUsername" value="" placeholder="Username">
+                </fieldset>
+
+                <fieldset>
+                    <input id="loginPassword" type="password" class="form-control" name="loginPassword" value="" placeholder="Password">
+                </fieldset>
+
+                <fieldset>
+                    <button type="button" id="btnLogin" class='btn btn-success'>Login</button>
+                </fieldset>
+            </form>
+        </div>
+        <div class="col-sm-6 col-md-6 col-lg-6">
+            <h3>Register</h3>
+            <form id="signup" class="navbar-form navbar-left" role="form">
+                <fieldset>
+                    <input id="registerUsername" type="text" class="form-control" name="registerUsername" value="" placeholder="Username">
+                </fieldset>
+
+                <fieldset>
+                    <input id="registerPassword" type="password" class="form-control" name="registerPassword" value="" placeholder="Password">
+                </fieldset>
+
+                <fieldset>
+                    <input id="registerFirstName" type="text" class="form-control" name="registerFirstName" value="" placeholder="First name">
+                </fieldset>
+
+                <fieldset>
+                    <input id="registerSurnamePrefix" type="text" class="form-control" name="registerSurnamePrefix" value="" placeholder="Surname prefix">
+                </fieldset>
+
+                <fieldset>
+                    <input id="registerLastName" type="text" class="form-control" name="registerLastName" value="" placeholder="Surname">
+                </fieldset>
+                <fieldset>
+                    <button type="button" id="btnRegister" class='btn btn-success'>Register</button>
+                </fieldset>
+            </form>
+
+
+
+        </div>
+
+    </div>
+
+    <hr>
+    <div class="row">
+        <div class="col-sm-12">
+            <footer>
+                <p>© Copyright 2016 Notflix</p>
+            </footer>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -113,11 +113,23 @@ db.once('open', function () {
     user.last_name = "Wierenga";
     user.username = "admin";
     user.password = "password";
-    movie.save(function (err) {
+    user.save(function (err) {
         if (err) {
             console.log("User not saved");
         } else {
             console.log("User added");
+        }
+    });
+
+    var rating = new Rating();
+    rating.by_user = "admin";
+    rating.rating = 7;
+    rating.imdb_number = 1656190;
+    rating.save(function (err) {
+        if (err) {
+            console.log("Rating not saved");
+        } else {
+            console.log("Rating added");
         }
     });
 });
@@ -203,8 +215,9 @@ router.route('/movies/:imdb_number')
         Movie.find({'imdb_number':req.params.imdb_number}, function(err, movie) {
             if (err) {
                 res.header('Access-Control-Allow-Origin', '*').status(500).send(err);
+            } else {
+                res.header('Access-Control-Allow-Origin', '*').status(200).json(movie);
             }
-            res.header('Access-Control-Allow-Origin', '*').status(200).json(movie);
         });
     });
 
