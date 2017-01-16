@@ -5,19 +5,18 @@
 $(document).ready(function() {
     if (localStorage.username) {
         console.log(localStorage.getItem("username"));
-    } else {
-        window.location.href = "login.html";
     }
 
     if (localStorage.token) {
         console.log(localStorage.getItem("token"));
-    } else {
-        window.location.href = "login.html";
     }
 
     getMovies();
 });
 
+/**
+ * Get all movies from the server
+ */
 function getMovies() {
     $.ajax({
         type:'GET',
@@ -29,6 +28,11 @@ function getMovies() {
     });
 }
 
+/**
+ * display a movie
+ * @param title the title of the movie
+ * @param imdbNumber the imdb number of the movie
+ */
 function displayMovie(title, imdbNumber) {
     //http://www.omdbapi.com/?t=blitz&y=&plot=short&r=json
     $.ajax({

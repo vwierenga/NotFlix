@@ -27,6 +27,11 @@ $(document).ready(function() {
     });
 });
 
+/**
+ * Check if the username and password exist and add the username and token to the localstorage if they match
+ * @param username
+ * @param password
+ */
 function login(username, password) {
     if (username == null || username == "" || password == null || password == "") {
         alert("Please enter a username and password ");
@@ -43,6 +48,9 @@ function login(username, password) {
     }
 }
 
+/**
+ * Create an account for the user
+ */
 function register() {
     var username = document.forms["signup"]["registerUsername"].value;
     var password = document.forms["signup"]["registerPassword"].value;

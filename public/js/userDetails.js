@@ -23,6 +23,10 @@ $(document).ready(function() {
     }
 });
 
+/**
+ * Get one user from the database
+ * @param id the _id of the user
+ */
 function getUserById(id) {
     var token = localStorage.getItem("token");
     $.ajax({
@@ -41,6 +45,10 @@ function getUserById(id) {
     });
 }
 
+/**
+ * Display one user in the user detail page
+ * @param user the user whose information gets displayed
+ */
 function displayUserDetails(user) {
     var surnamePrefix = "";
     if(user.surname_prefix != null && user.surname_prefix != "") {
@@ -53,6 +61,11 @@ function displayUserDetails(user) {
     );
 }
 
+/**
+ * Get a parameter from the url
+ * @param parameterName the name of the parameter
+ * @returns the get value
+ */
 function findGetParameter(parameterName) {
     var result = null,
         tmp = [];
